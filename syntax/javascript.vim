@@ -28,26 +28,33 @@ if version < 600 && exists("javaScript_fold")
   unlet javaScript_fold
 endif
 
-syn case ignore
+"" dollar sign is permitted anywhere in an identifier
+setlocal iskeyword+=$
+
+syntax sync fromstart
 
 
 syn keyword javaScriptCommentTodo      TODO FIXME XXX TBD contained
 syn match   javaScriptLineComment      "\/\/.*" contains=@Spell,javaScriptCommentTodo
 syn match   javaScriptCommentSkip      "^[ \t]*\*\($\|[ \t]\+\)"
 syn region  javaScriptComment	       start="/\*"  end="\*/" contains=@Spell,javaScriptCommentTodo
+
+syntax case match
+
 syn match   javaScriptSpecial	       "\\\d\d\d\|\\."
 syn region  javaScriptStringD	       start=+"+  skip=+\\\\\|\\"+  end=+"\|$+  contains=javaScriptSpecial,@htmlPreproc
 syn region  javaScriptStringS	       start=+'+  skip=+\\\\\|\\'+  end=+'\|$+  contains=javaScriptSpecial,@htmlPreproc
 
 syn match   javaScriptSpecialCharacter "'\\.'"
 syn match   javaScriptNumber	       "-\=\<\d\+L\=\>\|0[xX][0-9a-fA-F]\+\>"
+syn match   javaScriptLogicSymbol      "\(&&\)\|\(||\)"
 syn region  javaScriptRegexpString     start=+/[^/*]+me=e-1 skip=+\\\\\|\\/+ end=+/[gi]\{0,2\}\s*$+ end=+/[gi]\{0,2\}\s*[;.,)\]}]+me=e-1 contains=@htmlPreproc oneline
 
 syn keyword javaScriptConditional	if else switch
 syn keyword javaScriptRepeat		while for do in
 syn keyword javaScriptBranch		break continue
 syn keyword javaScriptOperator		new delete instanceof typeof
-syn keyword javaScriptType		Array Boolean Date Function Number Object String RegExp
+syn keyword javaScriptGlobalObjects	Array Boolean Date Function Number Object String RegExp
 syn keyword javaScriptStatement		return with
 syn keyword javaScriptBoolean		true false
 syn keyword javaScriptNull		null undefined
@@ -70,16 +77,22 @@ if exists("javaScript_fold")
     setlocal foldmethod=syntax
     setlocal foldtext=getline(v:foldstart)
 else
-    syn keyword	javaScriptFunction      function
-    syn match	javaScriptBraces	   "[{}\[\]]"
-    syn match	javaScriptParens	   "[()]"
+    syn keyword	javaScriptFunction      function contained
+    syn match	javaScriptBraces        "[{}\[\]]"
+    syn match	javaScriptParens        "[()]"
 endif
 
-syn sync fromstart
-syn sync maxlines=100
+"" Code Blocks
+syntax cluster javaScriptAll       contains=javaScriptComment,javaScriptLineComment,javaScriptCommentTodo,javaScriptSpecial,javaScriptStringS,javaScriptStringD,javaScriptCharacter,javaScriptSpecialCharacter,javaScriptNumber,javaScriptConditional,javaScriptRepeat,javaScriptBranch,javaScriptOperator,javaScriptGlobalObjects,javaScriptStatement,javaScriptFunction,javaScriptBraces,javaScriptError,javaScriptParenError,javaScriptNull,javaScriptBoolean,javaScriptRegexpString,javaScriptIdentifier,javaScriptLabel,javaScriptException,javaScriptMessage,javaScriptGlobal,javaScriptMember,javaScriptDeprecated,javaScriptReserved,javaScriptDebug,javaScriptConstant
+
+
+
+
+
 
 if main_syntax == "javascript"
-  syn sync ccomment javaScriptComment
+  syntax sync clear
+  syntax sync ccomment javaScriptComment minlines=200
 endif
 
 " Define the default highlighting.
@@ -105,15 +118,16 @@ if version >= 508 || !exists("did_javascript_syn_inits")
   HiLink javaScriptRepeat		Repeat
   HiLink javaScriptBranch		Conditional
   HiLink javaScriptOperator		Operator
-  HiLink javaScriptType			Type
   HiLink javaScriptStatement		Statement
   HiLink javaScriptFunction		Function
   HiLink javaScriptBraces		Function
   HiLink javaScriptError		Error
-  HiLink javaScrParenError		javaScriptError
+  HiLink javaScriptParenError		javaScriptError
   HiLink javaScriptNull			Keyword
   HiLink javaScriptBoolean		Boolean
+  HiLink javaScriptLogicSymbol          Boolean
   HiLink javaScriptRegexpString		String
+  HiLink javaScriptGlobalObjects	Special
 
   HiLink javaScriptIdentifier		Type
   HiLink javaScriptLabel		Label
